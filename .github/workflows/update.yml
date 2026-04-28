@@ -1,5 +1,8 @@
 name: Update MLB Widget JSON
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: "*/15 * * * *"   # every 15 minutes
