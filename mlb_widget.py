@@ -1,6 +1,6 @@
-import requests
+import requests, json
 from datetime import datetime, timezone
-import json
+from zoneinfo import ZoneInfo
 
 TEAM_ID = 141  # Toronto Blue Jays
 
@@ -46,19 +46,25 @@ def get_logo(team_id):
     return f"https://a.espncdn.com/i/teamlogos/mlb/500/{abbr}.png"
 
 def format_day(game_date):
-    game_dt = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
-    now = datetime.now(timezone.utc)
+    # Parse as UTC
+    game_dt_utc = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
 
-    diff = (game_dt.date() - now.date()).days
+    # Convert to your local timezone (Regina)
+    local_tz = ZoneInfo("America/Regina")
+    game_dt_local = game_dt_utc.astimezone(local_tz)
+
+    now = datetime.now(local_tz)
+
+    diff = (game_dt_local.date() - now.date()).days
 
     if diff == 0:
         day_str = "Today"
     elif diff == 1:
         day_str = "Tomorrow"
     else:
-        day_str = game_dt.strftime("%A")
+        day_str = game_dt_local.strftime("%A")
 
-    time_str = game_dt.strftime("%I:%M %p").lstrip("0")
+    time_str = game_dt_local.strftime("%I:%M %p").lstrip("0")
 
     return f"{day_str} @ {time_str}"
 
