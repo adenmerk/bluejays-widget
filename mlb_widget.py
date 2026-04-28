@@ -92,9 +92,9 @@ def process_game(game):
         opp_score = away["score"] if is_home else home["score"]
 
         if jays_score > opp_score:
-            result_text = f"Jays win {jays_score}-{opp_score}"
+            result_text = f"Jays Win {jays_score}-{opp_score}"
         else:
-            result_text = f"Jays lose {opp_score}-{jays_score}"
+            result_text = f"Jays Lose {opp_score}-{jays_score}"
 
         return {
             "opponent": opponent,
