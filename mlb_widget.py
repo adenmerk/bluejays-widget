@@ -45,6 +45,10 @@ def get_logo(team_id):
     abbr = TEAM_ABBR.get(team_id, "mlb")  # fallback
     return f"https://a.espncdn.com/i/teamlogos/mlb/500/{abbr}.png"
 
+def get_live_data(game_pk):
+    url = f"https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live"
+    return requests.get(url).json()
+
 def format_day(game_date):
     # Parse as UTC
     game_dt_utc = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
@@ -68,9 +72,44 @@ def format_day(game_date):
 
     return f"{day_str} @ {time_str}"
 
+def format_live_game(game):
+    game_pk = game["gamePk"]
+    live_data = get_live_data(game_pk)
+
+    linescore = live_data.get("liveData", {}).get("linescore", {})
+
+    inning = linescore.get("currentInning", "?")
+    is_top = linescore.get("isTopInning", True)
+
+    inning_half = "Top" if is_top else "Bot"
+
+    teams = game["teams"]
+
+    home = teams["home"]
+    away = teams["away"]
+
+    home_name = home["team"]["name"]
+    away_name = away["team"]["name"]
+
+    home_score = home.get("score", 0)
+    away_score = away.get("score", 0)
+
+    is_home = home_name == "Toronto Blue Jays"
+
+    if is_home:
+        jays_score = home_score
+        opp_score = away_score
+        opp_abbr = TEAM_ABBR.get(away["team"]["id"], "OPP").upper()
+    else:
+        jays_score = away_score
+        opp_score = home_score
+        opp_abbr = TEAM_ABBR.get(home["team"]["id"], "OPP").upper()
+
+    return f"{inning_half} {inning} • TOR {jays_score}-{opp_score} {opp_abbr}"
+
 def process_game(game):
     teams = game["teams"]
-    status = game["status"]["detailedState"]
+    status = game["status"]["abstractGameState"]
 
     home = teams["home"]
     away = teams["away"]
@@ -85,36 +124,89 @@ def process_game(game):
 
     opponent = away_team if is_home else home_team
     opponent_id = away_id if is_home else home_id
-    jays_id = 141
 
     home_away = "vs" if is_home else "@"
 
-    # 🔥 Logo URLs
+    # Logos
     opponent_logo = get_logo(opponent_id)
     jays_logo = get_logo(TEAM_ID)
 
-    if status == "Final":
-        jays_score = home["score"] if is_home else away["score"]
-        opp_score = away["score"] if is_home else home["score"]
+    # =========================
+    # 🔴 LIVE GAME
+    # =========================
+    if status == "Live":
+        try:
+            live_data = get_live_data(game["gamePk"])
+            linescore = live_data.get("liveData", {}).get("linescore", {})
 
-        if jays_score > opp_score:
-            result_text = f"Jays Win {jays_score}-{opp_score}"
-        else:
-            result_text = f"Jays Lose {opp_score}-{jays_score}"
+            inning = linescore.get("currentInning", "?")
+            is_top = linescore.get("isTopInning", True)
+            inning_half = "Top" if is_top else "Bot"
+
+            home_score = home.get("score", 0)
+            away_score = away.get("score", 0)
+
+            if is_home:
+                jays_score = home_score
+                opp_score = away_score
+                opp_abbr = TEAM_ABBR.get(away_id, "OPP").upper()
+            else:
+                jays_score = away_score
+                opp_score = home_score
+                opp_abbr = TEAM_ABBR.get(home_id, "OPP").upper()
+
+            display_time = f"{inning_half} {inning} - TOR {jays_score}-{opp_score} {opp_abbr}"
+
+        except:
+            # fallback if API fails
+            display_time = "Live • Updating"
 
         return {
             "opponent": opponent,
             "home_away": home_away,
-            "display_time": result_text,
+            "display_time": display_time,
+            "status": "live",
+            "opponent_logo": opponent_logo,
+            "jays_logo": jays_logo
+        }
+
+    # =========================
+    # ✅ FINAL GAME
+    # =========================
+    if status == "Final":
+        home_score = home.get("score", 0)
+        away_score = away.get("score", 0)
+
+        if is_home:
+            jays_score = home_score
+            opp_score = away_score
+        else:
+            jays_score = away_score
+            opp_score = home_score
+
+        if jays_score > opp_score:
+            display_time = f"Jays win {jays_score}-{opp_score}"
+        else:
+            display_time = f"Jays lose {opp_score}-{jays_score}"
+
+        return {
+            "opponent": opponent,
+            "home_away": home_away,
+            "display_time": display_time,
             "status": "final",
             "opponent_logo": opponent_logo,
             "jays_logo": jays_logo
         }
 
+    # =========================
+    # 📅 UPCOMING GAME
+    # =========================
+    display_time = format_day(game["gameDate"])
+
     return {
         "opponent": opponent,
         "home_away": home_away,
-        "display_time": format_day(game["gameDate"]),
+        "display_time": display_time,
         "status": "upcoming",
         "opponent_logo": opponent_logo,
         "jays_logo": jays_logo
@@ -132,28 +224,36 @@ def main():
         print("No games found")
         return
 
-    # Sort games by date (newest first)
+    # Sort by game time (newest first)
     games.sort(key=lambda g: g["gameDate"], reverse=True)
 
+    live_game = None
     final_game = None
     next_game = None
 
     now = datetime.now(timezone.utc)
 
     for game in games:
-        status = game["status"]["detailedState"]
+        status = game["status"]["abstractGameState"]
         game_dt = datetime.fromisoformat(game["gameDate"].replace("Z", "+00:00"))
 
-        # Most recent final game
+        # 🔴 PRIORITY 1: LIVE GAME
+        if status == "Live":
+            live_game = game
+            break  # nothing beats live
+
+        # ✅ PRIORITY 2: MOST RECENT FINAL
         if status == "Final" and not final_game:
             final_game = game
 
-        # Next upcoming game
-        if status in ["Scheduled", "Pre-Game"] and game_dt > now:
+        # 📅 PRIORITY 3: NEXT UPCOMING
+        if status in ["Preview", "Scheduled"] and game_dt > now:
             if not next_game:
                 next_game = game
 
-    if final_game:
+    if live_game:
+        result = process_game(live_game)
+    elif final_game:
         result = process_game(final_game)
     elif next_game:
         result = process_game(next_game)
