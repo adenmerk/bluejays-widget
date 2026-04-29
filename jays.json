@@ -1,8 +1,8 @@
 {
   "opponent": "Boston Red Sox",
   "home_away": "vs",
-  "display_time": "Top 9 - TOR 3-0 BOS",
-  "status": "live",
+  "display_time": "Jays win 3-0",
+  "status": "final",
   "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
