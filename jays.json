@@ -1,8 +1,8 @@
 {
-  "opponent": "Baltimore Orioles",
+  "opponent": "Philadelphia Phillies",
   "home_away": "vs",
-  "display_time": "Jays win 6-4",
-  "status": "final",
-  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
+  "display_time": "Today @ 5:07 PM",
+  "status": "upcoming",
+  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
