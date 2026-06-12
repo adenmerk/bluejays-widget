@@ -1,8 +1,8 @@
 {
-  "opponent": "Philadelphia Phillies",
+  "opponent": "New York Yankees",
   "home_away": "vs",
-  "display_time": "Jays lose 7-4",
-  "status": "final",
-  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+  "display_time": "Today @ 5:37 PM",
+  "status": "upcoming",
+  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
