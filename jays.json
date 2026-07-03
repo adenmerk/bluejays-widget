@@ -1,8 +1,8 @@
 {
-  "opponent": "New York Mets",
-  "home_away": "vs",
-  "display_time": "Jays win 9-3",
-  "status": "final",
-  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+  "opponent": "Seattle Mariners",
+  "home_away": "@",
+  "display_time": "Today @ 8:10 PM",
+  "status": "upcoming",
+  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
