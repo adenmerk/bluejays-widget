@@ -1,8 +1,8 @@
 {
-  "opponent": "San Francisco Giants",
+  "opponent": "San Diego Padres",
   "home_away": "@",
-  "display_time": "Jays win 10-0",
-  "status": "final",
-  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sf.png",
+  "display_time": "Today @ 7:40 PM",
+  "status": "upcoming",
+  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
