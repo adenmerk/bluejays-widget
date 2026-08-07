@@ -1,8 +1,8 @@
 {
-  "opponent": "Chicago Cubs",
+  "opponent": "Philadelphia Phillies",
   "home_away": "@",
-  "display_time": "Jays lose 3-2",
-  "status": "final",
-  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/chc.png",
+  "display_time": "Today @ 4:40 PM",
+  "status": "upcoming",
+  "opponent_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
   "jays_logo": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png"
 }
